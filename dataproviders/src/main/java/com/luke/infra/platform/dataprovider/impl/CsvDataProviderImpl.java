@@ -23,7 +23,7 @@ public class CsvDataProviderImpl implements InfraDataProvider {
 
 
 	/* 
-	 * This funtction will return read the specificed csv file and return the rows as defined in the TestContext
+	 * This function will return read the specified csv file and return the rows as defined in the TestContext
 	 * 
 	 * @param ctx
 	 * 			- The TestContext instance containing the csv path, DataReader class reference & range of rows to read
@@ -76,7 +76,6 @@ public class CsvDataProviderImpl implements InfraDataProvider {
 			}
 		}
 
-		// System.out.println("Done");
 		return dataObjects;
 	}
 
@@ -120,8 +119,11 @@ public class CsvDataProviderImpl implements InfraDataProvider {
 
 			String fieldName = eachField.getName();
 			int fieldIndex = headerMap.get(fieldName);
+			
+			//if last value in csv data row is empty
+			String colValue = rowData.length<=fieldIndex ? "" : rowData[fieldIndex];
 
-			eachField.set(objectToReturn, rowData[fieldIndex]);
+			eachField.set(objectToReturn, colValue);
 		}
 
 		return objectToReturn;
