@@ -6,56 +6,49 @@ import java.io.InputStreamReader;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 
 public class HttpClient {
-	public static String getRequest() {
-		String url = "http://jsonplaceholder.typicode.com/posts/1";
+	public static void getRequest() {
 
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		String url = "http://localhost:8080/api/tasks/1";
+		
+		CloseableHttpClient client = HttpClients.createDefault();
 		HttpGet request = new HttpGet(url);
-
-		// add request header
-		//request.addHeader("User-Agent", USER_AGENT);
-		HttpResponse response = null;
+		CloseableHttpResponse response = null;
 		try {
 			response = client.execute(request);
-		} catch (ClientProtocolException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
+			int status = response.getStatusLine().getStatusCode();
 
-		System.out.println("Response Code : "
-		                + response.getStatusLine().getStatusCode());
-
-		BufferedReader rd = null;
-		try {
-			rd = new BufferedReader(
-				new InputStreamReader(response.getEntity().getContent()));
-		} catch (UnsupportedOperationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		try {
-			while ((line = rd.readLine()) != null) {
-				result.append(line);
+			if (status >= 200 && status < 300) {
+				BufferedReader br;
+				
+				br = new BufferedReader(new InputStreamReader(response
+							.getEntity().getContent()));
+				
+				String line = "";
+				while ((line = br.readLine()) != null) {
+					System.out.println(line);
+				}
+			} else {
+				System.out.println("Unexpected response status: " + status);
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException | UnsupportedOperationException e) {
 			e.printStackTrace();
+		} finally {
+		    if(null != response){
+		    	try {
+					response.close();
+					client.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		    }
 		}
-		
-		return result.toString();
 	}
 }
